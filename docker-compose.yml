@@ -1,0 +1,112 @@
+# =============================================================================
+# TrailMate — full stack, one command.
+#
+#   cp .env.example .env      # then set JWT_SECRET
+#   docker compose up --build
+#
+#   web  → http://localhost:8080   (SPA, proxies /api to the API container)
+#   api  → http://localhost:5000   (exposed directly for curl and health checks)
+#
+# No API keys are required. TrailMate runs entirely on keyless providers until
+# you add one to .env.
+# =============================================================================
+
+name: trailmate
+
+services:
+  # ---------------------------------------------------------------- database
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-trailmate}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-trailmate_dev_password}
+      MONGO_INITDB_DATABASE: trailmate
+    volumes:
+      - mongo-data:/data/db
+    # Not published to the host by default: nothing outside the compose network
+    # needs to reach the database, and exposing an authenticated-but-default
+    # Mongo on 27017 is a bad habit. Uncomment to inspect it with Compass.
+    # ports:
+    #   - "27017:27017"
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ------------------------------------------------------------------- cache
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # `--save ''` disables RDB snapshots: this is a cache, and every entry is
+    # re-derivable from the upstream APIs. Losing it costs latency, not data.
+    command: ['redis-server', '--save', '', '--appendonly', 'no', '--maxmemory', '256mb', '--maxmemory-policy', 'allkeys-lru']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # --------------------------------------------------------------------- api
+  api:
+    build:
+      # Root context: npm workspaces needs the lockfile and every manifest.
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-trailmate}:${MONGO_INITDB_ROOT_PASSWORD:-trailmate_dev_password}@mongo:27017/trailmate?authSource=admin
+      REDIS_URL: redis://redis:6379
+
+      # Required. Generate one with:
+      #   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env — see .env.example}
+      JWT_EXPIRES_IN: 7d
+
+      # The browser reaches the API through nginx on the same origin, so the
+      # only origin that needs allowing is where the web container is published.
+      CORS_ORIGIN: http://localhost:${CLIENT_PORT:-8080}
+
+      # All optional. Absent keys simply mean the keyless provider is used.
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
+      UNSPLASH_ACCESS_KEY: ${UNSPLASH_ACCESS_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - '${SERVER_PORT:-5000}:5000'
+    # Defence in depth: the API needs no write access to its own filesystem.
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  # --------------------------------------------------------------------- web
+  web:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      API_UPSTREAM: http://api:5000
+    ports:
+      - '${CLIENT_PORT:-8080}:80'
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  mongo-data:

@@ -1,0 +1,49 @@
+﻿node.exe : npm warn Unknown cli config "--reset". This will stop 
+working in the next major version of npm.
+At C:\Program Files\nodejs\npm.ps1:29 char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...versio 
+   n of npm.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+> trailmate-server@1.0.0 seed
+> node scripts/seed.js
+
+[2m07:39:24.084[0m [36mINFO [0m MongoDB connected [2m{"db":"trailmate"}[0m
+[2m07:39:24.169[0m [36mINFO [0m Indexes synchronised with the current schemas
+[2m07:39:24.177[0m [36mINFO [0m Demo user already exists ΓÇö reusing it [2m{"email":"demo@trailmate.dev"}[0m
+[2m07:39:24.188[0m [36mINFO [0m Trip to Kyoto already saved ΓÇö skipping
+[2m07:39:24.192[0m [36mINFO [0m Trip to Lisbon already saved ΓÇö skipping
+[2m07:39:24.195[0m [36mINFO [0m Building a trip plan for ReykjavikΓÇª
+[2m07:39:24.209[0m [36mINFO [0m No REDIS_URL set ΓÇö using in-memory cache
+[2m07:39:24.924[0m [90mDEBUG[0m upstream ok open-meteo-geocoding/search [2m{"ms":714,"attempt":1,"status":200}[0m
+[2m07:39:24.924[0m [90mDEBUG[0m cache fill geocode:limit=6&q=reykjavik
+[2m07:39:24.933[0m [90mDEBUG[0m cache fill photo:q=reykjavik, capital region, iceland
+[2m07:39:25.038[0m [90mDEBUG[0m upstream ok nominatim/search [2m{"ms":109,"attempt":1,"status":200}[0m
+[2m07:39:25.149[0m [90mDEBUG[0m upstream ok countries-dataset/countries.json [2m{"ms":217,"attempt":1,"status":200}[0m
+[2m07:39:25.149[0m [90mDEBUG[0m cache fill country-dataset:v=1
+[2m07:39:25.152[0m [90mDEBUG[0m Country dataset indexed [2m{"records":250}[0m
+[2m07:39:25.153[0m [90mDEBUG[0m cache fill country:q=is
+[2m07:39:25.575[0m [90mDEBUG[0m upstream ok open-meteo/forecast [2m{"ms":650,"attempt":1,"status":200}[0m
+[2m07:39:25.577[0m [90mDEBUG[0m cache fill weather:days=6&lat=64.1355&lon=-21.8954
+[2m07:39:26.056[0m [90mDEBUG[0m upstream ok nominatim/search [2m{"ms":19,"attempt":1,"status":200}[0m
+[2m07:39:26.287[0m [90mDEBUG[0m upstream ok wikipedia/api.php [2m{"ms":1360,"attempt":1,"status":200}[0m
+[2m07:39:26.676[0m [90mDEBUG[0m upstream ok wikipedia/api.php [2m{"ms":382,"attempt":1,"status":200}[0m
+[2m07:39:27.915[0m [90mDEBUG[0m upstream ok wikipedia/api.php [2m{"ms":1238,"attempt":1,"status":200}[0m
+[2m07:39:27.918[0m [90mDEBUG[0m cache fill places:lat=64.1355&limit=20&lon=-21.8954&radius=5000
+[2m07:39:27.921[0m [90mDEBUG[0m cache join-inflight currencies:v=1
+[2m07:39:28.347[0m [90mDEBUG[0m upstream ok frankfurter/currencies [2m{"ms":428,"attempt":1,"status":200}[0m
+[2m07:39:28.348[0m [90mDEBUG[0m cache fill currencies:v=1
+[2m07:39:28.502[0m [90mDEBUG[0m upstream ok frankfurter/latest [2m{"ms":153,"attempt":1,"status":200}[0m
+[2m07:39:28.651[0m [90mDEBUG[0m upstream ok frankfurter/latest [2m{"ms":298,"attempt":1,"status":200}[0m
+[2m07:39:28.652[0m [90mDEBUG[0m cache fill currency:base=usd&series=false&target=isk
+[2m07:39:28.653[0m [90mDEBUG[0m upstream ok frankfurter/2026-07-02..2026-08-01 [2m{"ms":151,"attempt":1,"status":200}[0m
+[2m07:39:28.653[0m [90mDEBUG[0m cache fill currency:base=usd&series=true&target=isk
+[2m07:39:28.657[0m [90mDEBUG[0m cache fill ai-summary:fp=a1787b63b16263f2ee19&provider=rules
+[2m07:39:28.708[0m [36mINFO [0m Shared link for Reykjavik: /share/qoFnoi439InErvE5aW8KtdWxR4_V8LFO
+[2m07:39:28.708[0m [36mINFO [0m Saved trip to Reykjavik [2m{"sections":"weather,places,country,photo,currency,budget,packing,ai"}[0m
+[2m07:39:28.708[0m [36mINFO [0m Seed complete [2m{"user":"demo@trailmate.dev","password":"trailmate123","tripsCreated":1,"tripsSkipped":2}[0m
+[2m07:39:28.712[0m [33mWARN [0m MongoDB disconnected ΓÇö 
+persistence routes will degrade

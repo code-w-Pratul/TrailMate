@@ -1,0 +1,30 @@
+{
+  "name": "trailmate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-source travel & trip planner — weather, places, currency, maps and AI itinerary insights in one dashboard.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c cyan,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm run dev --workspace server",
+    "dev:client": "npm run dev --workspace client",
+    "build": "npm run build --workspace client",
+    "start": "npm run start --workspace server",
+    "test": "npm run test --workspace server",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "prettier --write \"**/*.{js,jsx,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,json,md,css}\"",
+    "seed": "npm run seed --workspace server"
+  },
+  "devDependencies": {
+    "concurrently": "9.1.2",
+    "prettier": "3.4.2"
+  }
+}

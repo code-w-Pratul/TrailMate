@@ -1,0 +1,51 @@
+# Keep the build context small and, more importantly, keep secrets out of it.
+# Anything listed here can never end up in an image layer by accident.
+
+# Secrets — the single most important entry in this file.
+.env
+.env.*
+!.env.example
+
+# Dependencies are reinstalled inside the image from the lockfile.
+node_modules
+**/node_modules
+
+# Build output
+dist
+**/dist
+build
+**/build
+
+# Tests, tooling and coverage: not needed at runtime.
+coverage
+**/coverage
+**/*.test.js
+server/tests
+.eslintcache
+
+# VCS, editors, OS cruft
+.git
+.github
+.gitignore
+.vscode
+.idea
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docs and local data volumes
+*.md
+!README.md
+docs
+data
+mongo-data
+redis-data
+logs
+*.log
+
+# Docker files themselves
+Dockerfile
+**/Dockerfile
+docker-compose*.yml
+.dockerignore

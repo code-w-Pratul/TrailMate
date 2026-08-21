@@ -1,0 +1,253 @@
+@import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
+
+/**
+ * Tailwind v4 is configured in CSS rather than a JS config file.
+ * The explicit class variant lets PreferencesProvider override the OS theme.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* TrailMate's editorial palette: alpine forest against warm paper. */
+  --color-brand-50: oklch(0.97 0.018 145);
+  --color-brand-100: oklch(0.93 0.035 145);
+  --color-brand-200: oklch(0.86 0.055 145);
+  --color-brand-300: oklch(0.75 0.075 145);
+  --color-brand-400: oklch(0.63 0.088 145);
+  --color-brand-500: oklch(0.51 0.085 145);
+  --color-brand-600: oklch(0.42 0.072 145);
+  --color-brand-700: oklch(0.35 0.06 145);
+  --color-brand-800: oklch(0.29 0.047 145);
+  --color-brand-900: oklch(0.23 0.037 145);
+  --color-brand-950: oklch(0.17 0.027 145);
+
+  --font-sans: 'Avenir Next', Avenir, 'Inter var', Inter, ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', sans-serif;
+  --font-display: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+
+  --radius-card: 1.5rem;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-rise: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-drift: drift 16s ease-in-out infinite alternate;
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.04) translate3d(-0.5%, -0.5%, 0);
+  }
+}
+
+@layer base {
+  html {
+    min-width: 320px;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+    min-width: 320px;
+    background-image: radial-gradient(circle at 8% 4%, rgb(235 231 218 / 0.48), transparent 28rem),
+      radial-gradient(circle at 92% 18%, rgb(220 229 217 / 0.38), transparent 32rem);
+  }
+
+  .dark body {
+    background-image: radial-gradient(circle at 8% 4%, rgb(44 57 44 / 0.32), transparent 28rem),
+      radial-gradient(circle at 92% 18%, rgb(36 48 38 / 0.24), transparent 32rem);
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-brand-950 dark:bg-brand-700 dark:text-white;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-600 dark:outline-brand-300;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/**
+ * Shared presentation primitives. Keeping the existing tm-* contract lets all
+ * routed pages adopt the new system without changing their data behaviour.
+ */
+@layer components {
+  .tm-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .tm-page {
+    @apply mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12;
+  }
+
+  .tm-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .tm-eyebrow {
+    @apply inline-flex items-center gap-2 text-[0.68rem] font-bold uppercase tracking-[0.22em] text-brand-700 dark:text-brand-300;
+  }
+
+  .tm-page-title {
+    @apply text-4xl leading-[0.98] text-stone-950 sm:text-5xl dark:text-white;
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  .tm-page-copy {
+    @apply max-w-2xl text-sm leading-7 text-stone-600 sm:text-base dark:text-stone-400;
+  }
+
+  .tm-card {
+    @apply rounded-card border border-stone-200/90 bg-white/92;
+    box-shadow:
+      0 1px 1px rgb(28 25 23 / 0.03),
+      0 18px 50px rgb(28 25 23 / 0.055);
+    backdrop-filter: blur(10px);
+  }
+
+  .dark .tm-card {
+    @apply border-stone-800 bg-stone-900/88;
+    box-shadow:
+      0 1px 1px rgb(0 0 0 / 0.2),
+      0 20px 60px rgb(0 0 0 / 0.2);
+  }
+
+  .tm-card-pad {
+    @apply p-5 sm:p-6;
+  }
+
+  .tm-label {
+    @apply text-[0.66rem] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400;
+  }
+
+  .tm-input {
+    @apply min-h-11 w-full rounded-xl border border-stone-300 bg-white/80 px-3.5 py-2.5 text-sm text-stone-900 shadow-none transition;
+    @apply placeholder:text-stone-400 hover:border-stone-400 focus:border-brand-600 focus:ring-3 focus:ring-brand-600/12;
+    @apply dark:border-stone-700 dark:bg-stone-900/80 dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-stone-600 dark:focus:border-brand-400 dark:focus:ring-brand-400/15;
+  }
+
+  .dark input[type='date'] {
+    color-scheme: dark;
+  }
+
+  .tm-btn,
+  .tm-btn-primary,
+  .tm-btn-secondary,
+  .tm-btn-ghost {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .tm-btn-primary {
+    @apply border border-brand-700 bg-brand-700 text-white hover:-translate-y-0.5 hover:border-brand-800 hover:bg-brand-800 active:translate-y-0;
+    box-shadow: 0 10px 24px rgb(33 72 48 / 0.18);
+  }
+
+  .tm-btn-primary:disabled {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .tm-btn-secondary {
+    @apply border border-stone-300 bg-white/75 text-stone-800 hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50 hover:text-brand-800 active:translate-y-0;
+    @apply dark:border-stone-700 dark:bg-stone-900/70 dark:text-stone-200 dark:hover:border-brand-500 dark:hover:bg-brand-950 dark:hover:text-brand-200;
+  }
+
+  .tm-btn-ghost {
+    @apply text-stone-600 hover:bg-stone-200/65 hover:text-stone-950 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white;
+  }
+
+  .tm-chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100/80 px-3 py-1 text-xs font-medium text-stone-700;
+    @apply dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300;
+  }
+
+  .tm-skeleton {
+    @apply animate-shimmer rounded-xl bg-stone-200 dark:bg-stone-800;
+  }
+
+  .tm-rule {
+    @apply border-stone-200 dark:border-stone-800;
+  }
+
+  .tm-editorial-link {
+    @apply inline-flex items-center gap-2 border-b border-current pb-0.5 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-900 dark:text-brand-300 dark:hover:text-brand-100;
+  }
+
+  .tm-map .leaflet-container {
+    @apply h-full w-full rounded-card bg-stone-200 dark:bg-stone-800;
+    font: inherit;
+  }
+
+  .tm-map .leaflet-popup-content-wrapper,
+  .tm-map .leaflet-popup-tip {
+    @apply bg-white text-stone-900 shadow-xl dark:bg-stone-900 dark:text-stone-100;
+  }
+
+  .tm-map .leaflet-popup-content {
+    @apply m-3 text-sm;
+  }
+
+  .tm-map .leaflet-bar a,
+  .tm-map .leaflet-control-attribution {
+    @apply bg-white text-stone-700 dark:bg-stone-900 dark:text-stone-300;
+  }
+
+  .tm-map .leaflet-control-attribution a {
+    @apply text-brand-700 dark:text-brand-300;
+  }
+}
+
+.dark .tm-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.88) contrast(0.9) saturate(0.58);
+}
