@@ -85,10 +85,17 @@ function networkMessage(error) {
 /* Instance                                                                   */
 /* -------------------------------------------------------------------------- */
 
+function resolveApiBaseUrl() {
+  const url = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URI;
+  if (!url) return '/api';
+  const clean = url.trim().replace(/\/+$/, '');
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+}
+
 export const http = axios.create({
   // Same-origin by default: the Vite dev proxy and the production container
   // both serve the API under /api. VITE_API_URL is only for split deployments.
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: resolveApiBaseUrl(),
   timeout: 45_000,
   headers: { Accept: 'application/json' },
 });
